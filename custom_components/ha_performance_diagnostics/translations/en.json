@@ -1,0 +1,32 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HA Performance Diagnostics",
+        "description": "Configure performance monitoring settings. Defaults work well for most installations.",
+        "data": {
+          "scan_interval": "Scan interval (seconds)",
+          "slow_query_threshold_ms": "Slow query threshold (ms)",
+          "state_change_threshold": "State change threshold (changes/hour)",
+          "db_size_warn_mb": "Database size warning (MB)"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "HA Performance Diagnostics is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "HA Performance Diagnostics Options",
+        "data": {
+          "scan_interval": "Scan interval (seconds)",
+          "slow_query_threshold_ms": "Slow query threshold (ms)",
+          "state_change_threshold": "State change threshold (changes/hour)",
+          "db_size_warn_mb": "Database size warning (MB)"
+        }
+      }
+    }
+  }
+}
