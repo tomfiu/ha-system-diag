@@ -1,0 +1,11 @@
+{
+  "domain": "ha_performance_diagnostics",
+  "name": "HA Performance Diagnostics",
+  "version": "1.0.0",
+  "config_flow": true,
+  "dependencies": ["recorder"],
+  "requirements": [],
+  "codeowners": [],
+  "iot_class": "local_polling",
+  "documentation": "https://github.com/tomfiu/ha-system-diag"
+}
