@@ -7,5 +7,6 @@
   "requirements": [],
   "codeowners": [],
   "iot_class": "local_polling",
-  "documentation": "https://github.com/tomfiu/ha-system-diag"
+  "documentation": "https://github.com/tomfiu/ha-system-diag",
+  "homeassistant": "2024.1.0"
 }
