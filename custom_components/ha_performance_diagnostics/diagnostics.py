@@ -113,6 +113,28 @@ async def async_get_system_metrics(hass: HomeAssistant) -> dict[str, Any]:
 # 2. Top CPU Processes
 # ---------------------------------------------------------------------------
 
+_GENERIC_INTERPRETER_NAMES = frozenset(
+    {"python3", "python", "python2", "node", "nodejs", "ruby", "perl", "java"}
+)
+
+
+def _cmdline_display_name(name: str, cmdline: list[str]) -> str:
+    """Return a meaningful display name for generic interpreters using their cmdline."""
+    if not cmdline or name not in _GENERIC_INTERPRETER_NAMES:
+        return name
+    args = cmdline[1:]
+    # Pass 1: -m <module> anywhere in args
+    for i, arg in enumerate(args):
+        if arg == "-m" and i + 1 < len(args):
+            return f"{name} -m {args[i + 1]}"
+    # Pass 2: first positional arg that looks like a file (has extension or an absolute path)
+    for arg in args:
+        if not arg.startswith("-"):
+            basename = arg.rsplit("/", 1)[-1]
+            if "." in basename or arg.startswith("/"):
+                return f"{name} {basename}"
+    return name
+
 
 def _get_top_processes_sync() -> list[dict[str, Any]]:
     """Collect top processes by CPU usage (runs in executor)."""
@@ -121,15 +143,20 @@ def _get_top_processes_sync() -> list[dict[str, Any]]:
 
     procs = []
     try:
-        for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+        for proc in psutil.process_iter(
+            ["pid", "name", "cpu_percent", "memory_percent", "cmdline"]
+        ):
             try:
                 info = proc.info
+                raw_name = info["name"] or "unknown"
+                cmdline: list[str] = info.get("cmdline") or []
                 procs.append(
                     {
                         "pid": info["pid"],
-                        "name": info["name"] or "unknown",
+                        "name": _cmdline_display_name(raw_name, cmdline),
                         "cpu_percent": round(info["cpu_percent"] or 0.0, 1),
                         "memory_percent": round(info["memory_percent"] or 0.0, 1),
+                        "cmdline": " ".join(cmdline[:12]),
                     }
                 )
             except (psutil.NoSuchProcess, psutil.AccessDenied):
