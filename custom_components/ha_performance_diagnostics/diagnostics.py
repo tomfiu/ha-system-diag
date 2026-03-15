@@ -120,19 +120,22 @@ def _get_top_processes_sync() -> list[dict[str, Any]]:
         return []
 
     procs = []
-    for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
-        try:
-            info = proc.info
-            procs.append(
-                {
-                    "pid": info["pid"],
-                    "name": info["name"] or "unknown",
-                    "cpu_percent": round(info["cpu_percent"] or 0.0, 1),
-                    "memory_percent": round(info["memory_percent"] or 0.0, 1),
-                }
-            )
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
-            pass
+    try:
+        for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+            try:
+                info = proc.info
+                procs.append(
+                    {
+                        "pid": info["pid"],
+                        "name": info["name"] or "unknown",
+                        "cpu_percent": round(info["cpu_percent"] or 0.0, 1),
+                        "memory_percent": round(info["memory_percent"] or 0.0, 1),
+                    }
+                )
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                pass
+    except (psutil.AccessDenied, psutil.NoSuchProcess):
+        pass
 
     procs.sort(key=lambda p: p["cpu_percent"], reverse=True)
     return procs[:5]
