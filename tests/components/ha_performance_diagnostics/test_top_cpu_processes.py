@@ -66,6 +66,82 @@ class TestGetTopProcessesSync:
         assert proc["name"] == "homeassistant"
         assert proc["cpu_percent"] == 12.5
         assert proc["memory_percent"] == 3.2
+        assert "cmdline" in proc
+
+    def test_cmdline_enriches_module_flag(self):
+        """python3 -m <module> anywhere in args is used as the display name."""
+        fake_procs = [
+            _make_proc(
+                pid=10,
+                name="python3",
+                cpu=20.0,
+                mem=5.0,
+                cmdline=["python3", "-u", "-m", "homeassistant"],
+            )
+        ]
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.HAS_PSUTIL",
+                True,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.psutil.process_iter",
+                return_value=fake_procs,
+            ),
+        ):
+            result = _get_top_processes_sync()
+
+        assert result[0]["name"] == "python3 -m homeassistant"
+
+    def test_cmdline_enriches_script_path(self):
+        """python3 /path/to/script.py uses the basename as the display name."""
+        fake_procs = [
+            _make_proc(
+                pid=11,
+                name="python3",
+                cpu=15.0,
+                mem=3.0,
+                cmdline=["python3", "/usr/src/homeassistant/__main__.py"],
+            )
+        ]
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.HAS_PSUTIL",
+                True,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.psutil.process_iter",
+                return_value=fake_procs,
+            ),
+        ):
+            result = _get_top_processes_sync()
+
+        assert result[0]["name"] == "python3 __main__.py"
+
+    def test_cmdline_not_enriched_for_known_process(self):
+        """Non-interpreter names are left unchanged even if cmdline is present."""
+        fake_procs = [
+            _make_proc(
+                pid=12,
+                name="nginx",
+                cpu=5.0,
+                mem=1.0,
+                cmdline=["nginx", "-g", "daemon off;"],
+            )
+        ]
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.HAS_PSUTIL",
+                True,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.diagnostics.psutil.process_iter",
+                return_value=fake_procs,
+            ),
+        ):
+            result = _get_top_processes_sync()
+
+        assert result[0]["name"] == "nginx"
 
     def test_skips_inaccessible_processes(self):
         """Processes raising NoSuchProcess or AccessDenied are skipped."""
@@ -174,7 +250,13 @@ class TestAsyncGetTopCpuProcesses:
 # ---------------------------------------------------------------------------
 
 
-def _make_proc(pid: int, name: str | None, cpu: float | None, mem: float | None):
+def _make_proc(
+    pid: int,
+    name: str | None,
+    cpu: float | None,
+    mem: float | None,
+    cmdline: list[str] | None = None,
+):
     """Create a fake psutil Process mock with .info dict."""
     proc = MagicMock()
     proc.info = {
@@ -182,6 +264,7 @@ def _make_proc(pid: int, name: str | None, cpu: float | None, mem: float | None)
         "name": name,
         "cpu_percent": cpu,
         "memory_percent": mem,
+        "cmdline": cmdline or [],
     }
     return proc
 
