@@ -27,11 +27,24 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     # Register frontend card as a static resource
     frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "ha-performance-card.js")
     if os.path.isfile(frontend_path):
-        hass.http.register_static_path(
-            "/hacsfiles/ha-performance-card/ha-performance-card.js",
-            frontend_path,
-            cache_headers=True,
-        )
+        try:
+            from homeassistant.components.http import StaticPathConfig
+
+            await hass.http.async_register_static_paths(
+                [
+                    StaticPathConfig(
+                        "/hacsfiles/ha-performance-card/ha-performance-card.js",
+                        frontend_path,
+                        cache_headers=True,
+                    )
+                ]
+            )
+        except (ImportError, AttributeError):
+            hass.http.register_static_path(
+                "/hacsfiles/ha-performance-card/ha-performance-card.js",
+                frontend_path,
+                cache_headers=True,
+            )
 
     # Listen for options updates
     entry.async_on_unload(entry.add_update_listener(async_update_options))
