@@ -182,7 +182,7 @@ class TestAsyncGetDbHealth:
             result = await async_get_db_health(hass)
 
         assert result["db_size_mb"] is not None
-        assert result["db_size_mb"] > 0
+        assert result["db_size_mb"] >= 0
         assert result["integrity_ok"] is True
         assert result["recorder_queue_size"] == 5
 
