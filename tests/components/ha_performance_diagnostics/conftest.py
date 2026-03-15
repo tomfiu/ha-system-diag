@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from unittest.mock import MagicMock, patch
-
 import pytest
 
 from custom_components.ha_performance_diagnostics.const import (
@@ -22,7 +20,6 @@ from custom_components.ha_performance_diagnostics.const import (
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLOW_QUERY_THRESHOLD_MS,
     DEFAULT_STATE_CHANGE_THRESHOLD,
-    DOMAIN,
 )
 
 

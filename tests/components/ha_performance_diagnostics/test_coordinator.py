@@ -8,7 +8,6 @@ import pytest
 
 from custom_components.ha_performance_diagnostics.const import (
     CONF_SCAN_INTERVAL,
-    CONF_STATE_CHANGE_THRESHOLD,
     DATA_ANTIPATTERNS,
     DATA_DB,
     DATA_HEALTH_SCORE,
@@ -17,8 +16,6 @@ from custom_components.ha_performance_diagnostics.const import (
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
     DEFAULT_SCAN_INTERVAL,
-    DEFAULT_STATE_CHANGE_THRESHOLD,
-    DOMAIN,
 )
 from custom_components.ha_performance_diagnostics.coordinator import (
     HAPerfDiagCoordinator,
@@ -89,26 +86,32 @@ class TestCoordinatorUpdate:
         }
         integration_data = {"slowest": [], "integration_count": 5}
 
-        with patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
-            new_callable=AsyncMock,
-            return_value=system_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
-            new_callable=AsyncMock,
-            return_value=db_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
-            new_callable=AsyncMock,
-            return_value=state_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
-            new_callable=AsyncMock,
-            return_value=integration_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
-            new_callable=AsyncMock,
-            return_value=[],
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
+                new_callable=AsyncMock,
+                return_value=system_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
+                new_callable=AsyncMock,
+                return_value=db_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
+                new_callable=AsyncMock,
+                return_value=state_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
+                new_callable=AsyncMock,
+                return_value=integration_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
         ):
             data = await coordinator._async_update_data()
 
@@ -134,26 +137,32 @@ class TestCoordinatorUpdate:
         }
         integration_data = {"slowest": [], "integration_count": 5}
 
-        with patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
-            new_callable=AsyncMock,
-            side_effect=Exception("CPU read failed"),
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
-            new_callable=AsyncMock,
-            return_value=db_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
-            new_callable=AsyncMock,
-            return_value=state_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
-            new_callable=AsyncMock,
-            return_value=integration_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
-            new_callable=AsyncMock,
-            return_value=[],
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
+                new_callable=AsyncMock,
+                side_effect=Exception("CPU read failed"),
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
+                new_callable=AsyncMock,
+                return_value=db_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
+                new_callable=AsyncMock,
+                return_value=state_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
+                new_callable=AsyncMock,
+                return_value=integration_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
         ):
             data = await coordinator._async_update_data()
 
@@ -176,50 +185,62 @@ class TestCoordinatorUpdate:
         integration_data = {"slowest": [], "integration_count": 5}
 
         # First successful run
-        with patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
-            new_callable=AsyncMock,
-            return_value=system_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
-            new_callable=AsyncMock,
-            return_value=db_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
-            new_callable=AsyncMock,
-            return_value=state_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
-            new_callable=AsyncMock,
-            return_value=integration_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
-            new_callable=AsyncMock,
-            return_value=[],
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
+                new_callable=AsyncMock,
+                return_value=system_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
+                new_callable=AsyncMock,
+                return_value=db_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
+                new_callable=AsyncMock,
+                return_value=state_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
+                new_callable=AsyncMock,
+                return_value=integration_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
         ):
             await coordinator._async_update_data()
 
         # Second run with system failure
-        with patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
-            new_callable=AsyncMock,
-            side_effect=Exception("CPU read failed"),
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
-            new_callable=AsyncMock,
-            return_value=db_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
-            new_callable=AsyncMock,
-            return_value=state_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
-            new_callable=AsyncMock,
-            return_value=integration_data,
-        ), patch(
-            "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
-            new_callable=AsyncMock,
-            return_value=[],
+        with (
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_system_metrics",
+                new_callable=AsyncMock,
+                side_effect=Exception("CPU read failed"),
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_db_health",
+                new_callable=AsyncMock,
+                return_value=db_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_state_change_analysis",
+                new_callable=AsyncMock,
+                return_value=state_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_get_integration_timing",
+                new_callable=AsyncMock,
+                return_value=integration_data,
+            ),
+            patch(
+                "custom_components.ha_performance_diagnostics.coordinator.async_scan_automation_antipatterns",
+                new_callable=AsyncMock,
+                return_value=[],
+            ),
         ):
             data = await coordinator._async_update_data()
 

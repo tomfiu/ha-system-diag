@@ -6,7 +6,7 @@ import os
 import sqlite3
 import tempfile
 import time
-from unittest.mock import MagicMock, AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -177,9 +177,7 @@ class TestAsyncGetDbHealth:
 
         hass.async_add_executor_job = run_executor
 
-        with patch(
-            "custom_components.ha_performance_diagnostics.diagnostics.get_instance"
-        ) as mock_recorder:
+        with patch("homeassistant.components.recorder.get_instance") as mock_recorder:
             mock_recorder.return_value = MagicMock(backlog=5)
             result = await async_get_db_health(hass)
 
@@ -197,9 +195,7 @@ class TestAsyncGetStateChangeAnalysis:
         """Returns enriched top entities."""
         hass = MagicMock()
         hass.config.path.return_value = mock_db
-        hass.states.get.return_value = MagicMock(
-            attributes={"friendly_name": "Test Entity"}
-        )
+        hass.states.get.return_value = MagicMock(attributes={"friendly_name": "Test Entity"})
         hass.states.async_all.return_value = [MagicMock()] * 50
 
         async def run_executor(fn, *args):
@@ -207,12 +203,10 @@ class TestAsyncGetStateChangeAnalysis:
 
         hass.async_add_executor_job = run_executor
 
-        with patch(
-            "custom_components.ha_performance_diagnostics.diagnostics.er"
-        ) as mock_er:
+        with patch("homeassistant.helpers.entity_registry.async_get") as mock_er_async_get:
             mock_registry = MagicMock()
             mock_registry.async_get.return_value = MagicMock(platform="test_platform")
-            mock_er.async_get.return_value = mock_registry
+            mock_er_async_get.return_value = mock_registry
 
             result = await async_get_state_change_analysis(hass, threshold=60)
 
@@ -235,12 +229,8 @@ class TestAsyncGetStateChangeAnalysis:
 
         hass.async_add_executor_job = run_executor
 
-        with patch(
-            "custom_components.ha_performance_diagnostics.diagnostics.er"
-        ) as mock_er:
-            mock_er.async_get.return_value = MagicMock(
-                async_get=MagicMock(return_value=None)
-            )
+        with patch("homeassistant.helpers.entity_registry.async_get") as mock_er_async_get:
+            mock_er_async_get.return_value = MagicMock(async_get=MagicMock(return_value=None))
 
             result = await async_get_state_change_analysis(hass, threshold=100)
 

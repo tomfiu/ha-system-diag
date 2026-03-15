@@ -9,10 +9,9 @@ from typing import Any
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
 from .const import (
-    CONF_DB_SIZE_WARN_MB,
     CONF_SCAN_INTERVAL,
     CONF_STATE_CHANGE_THRESHOLD,
     DATA_ANTIPATTERNS,
@@ -22,7 +21,6 @@ from .const import (
     DATA_RECOMMENDATIONS,
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
-    DEFAULT_DB_SIZE_WARN_MB,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATE_CHANGE_THRESHOLD,
     DOMAIN,
@@ -70,9 +68,7 @@ class HAPerfDiagCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         results = await asyncio.gather(
             async_get_system_metrics(self.hass),
             async_get_db_health(self.hass),
-            async_get_state_change_analysis(
-                self.hass, self._state_change_threshold
-            ),
+            async_get_state_change_analysis(self.hass, self._state_change_threshold),
             async_get_integration_timing(self.hass),
             return_exceptions=True,
         )
@@ -83,9 +79,7 @@ class HAPerfDiagCoordinator(DataUpdateCoordinator[dict[str, Any]]):
         keys = [DATA_SYSTEM, DATA_DB, DATA_STATE_CHANGES, DATA_INTEGRATIONS]
         for key, result in zip(keys, results):
             if isinstance(result, Exception):
-                _LOGGER.warning(
-                    "Error collecting %s data: %s", key, result
-                )
+                _LOGGER.warning("Error collecting %s data: %s", key, result)
                 if self._previous_data and key in self._previous_data:
                     data[key] = self._previous_data[key]
                 else:

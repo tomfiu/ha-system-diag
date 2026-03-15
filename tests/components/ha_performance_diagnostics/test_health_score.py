@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import copy
 
-import pytest
-
 from custom_components.ha_performance_diagnostics.const import (
     CONF_DB_SIZE_WARN_MB,
     CONF_STATE_CHANGE_THRESHOLD,
@@ -14,8 +12,6 @@ from custom_components.ha_performance_diagnostics.const import (
     DATA_INTEGRATIONS,
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
-    DEFAULT_DB_SIZE_WARN_MB,
-    DEFAULT_STATE_CHANGE_THRESHOLD,
 )
 from custom_components.ha_performance_diagnostics.diagnostics import (
     calculate_health_score,
@@ -133,9 +129,7 @@ class TestHealthScore:
         data[DATA_DB]["recorder_queue_size"] = 600  # -10
         data[DATA_STATE_CHANGES]["top_entities"][0]["changes_per_hour"] = 100  # -15
         data[DATA_INTEGRATIONS]["slowest"][0]["avg_update_ms"] = 1500.0  # -10
-        data[DATA_ANTIPATTERNS] = [
-            {"pattern": f"test{i}"} for i in range(10)
-        ]  # -50
+        data[DATA_ANTIPATTERNS] = [{"pattern": f"test{i}"} for i in range(10)]  # -50
         # Total: 100 - 20 - 20 - 10 - 15 - 10 - 50 = -25 -> 0
         score = calculate_health_score(data)
         assert score == 0

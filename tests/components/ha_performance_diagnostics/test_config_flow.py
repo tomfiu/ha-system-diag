@@ -6,6 +6,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from custom_components.ha_performance_diagnostics.config_flow import (
+    HAPerfDiagConfigFlow,
+    HAPerfDiagOptionsFlow,
+)
 from custom_components.ha_performance_diagnostics.const import (
     CONF_DB_SIZE_WARN_MB,
     CONF_SCAN_INTERVAL,
@@ -15,11 +19,6 @@ from custom_components.ha_performance_diagnostics.const import (
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLOW_QUERY_THRESHOLD_MS,
     DEFAULT_STATE_CHANGE_THRESHOLD,
-    DOMAIN,
-)
-from custom_components.ha_performance_diagnostics.config_flow import (
-    HAPerfDiagConfigFlow,
-    HAPerfDiagOptionsFlow,
 )
 
 
@@ -39,8 +38,10 @@ class TestConfigFlow:
     @pytest.mark.asyncio
     async def test_user_step_shows_form(self, config_flow):
         """First call shows the form."""
-        with patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock), \
-             patch.object(config_flow, "_abort_if_unique_id_configured"):
+        with (
+            patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock),
+            patch.object(config_flow, "_abort_if_unique_id_configured"),
+        ):
             result = await config_flow.async_step_user()
 
         assert result["type"] == "form"
@@ -57,8 +58,10 @@ class TestConfigFlow:
             CONF_DB_SIZE_WARN_MB: 1000,
         }
 
-        with patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock), \
-             patch.object(config_flow, "_abort_if_unique_id_configured"):
+        with (
+            patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock),
+            patch.object(config_flow, "_abort_if_unique_id_configured"),
+        ):
             result = await config_flow.async_step_user(user_input)
 
         assert result["type"] == "create_entry"
@@ -75,8 +78,10 @@ class TestConfigFlow:
             CONF_DB_SIZE_WARN_MB: DEFAULT_DB_SIZE_WARN_MB,
         }
 
-        with patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock), \
-             patch.object(config_flow, "_abort_if_unique_id_configured"):
+        with (
+            patch.object(config_flow, "async_set_unique_id", new_callable=AsyncMock),
+            patch.object(config_flow, "_abort_if_unique_id_configured"),
+        ):
             result = await config_flow.async_step_user(user_input)
 
         assert result["type"] == "create_entry"

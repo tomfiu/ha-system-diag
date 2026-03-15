@@ -191,7 +191,12 @@ def _query_state_changes(db_path: str) -> list[dict[str, Any]]:
 
     one_hour_ago = time.time() - 3600
 
-    conn = sqlite3.connect(db_path, timeout=2)
+    try:
+        conn = sqlite3.connect(db_path, timeout=2)
+    except sqlite3.OperationalError:
+        _LOGGER.warning("Could not open database at %s", db_path)
+        return [], 0
+
     try:
         # Try new schema with states_meta table first
         cursor = conn.execute(
@@ -229,15 +234,10 @@ def _query_state_changes(db_path: str) -> list[dict[str, Any]]:
         conn.close()
 
     total_changes = sum(row[1] for row in rows)
-    return [
-        {"entity_id": row[0], "changes_per_hour": row[1]}
-        for row in rows
-    ], total_changes
+    return [{"entity_id": row[0], "changes_per_hour": row[1]} for row in rows], total_changes
 
 
-async def async_get_state_change_analysis(
-    hass: HomeAssistant, threshold: int
-) -> dict[str, Any]:
+async def async_get_state_change_analysis(hass: HomeAssistant, threshold: int) -> dict[str, Any]:
     """Analyze state changes in the past hour."""
     db_path = hass.config.path("home-assistant_v2.db")
 
@@ -326,8 +326,6 @@ async def async_get_integration_timing(hass: HomeAssistant) -> dict[str, Any]:
     # Count loaded integrations
     integration_count = 0
     try:
-        from homeassistant.loader import async_get_loaded_integration
-
         config_entries = hass.config_entries.async_entries()
         domains = {entry.domain for entry in config_entries}
         integration_count = len(domains)
@@ -335,9 +333,7 @@ async def async_get_integration_timing(hass: HomeAssistant) -> dict[str, Any]:
         integration_count = len(setup_times)
 
     # Sort by duration and take top 3
-    sorted_integrations = sorted(
-        setup_times.items(), key=lambda x: x[1], reverse=True
-    )[:3]
+    sorted_integrations = sorted(setup_times.items(), key=lambda x: x[1], reverse=True)[:3]
 
     # Get entity counts per integration
     try:
@@ -521,9 +517,7 @@ def calculate_health_score(
     """Calculate the health score (0-100)."""
     config = config or {}
     db_size_warn = config.get(CONF_DB_SIZE_WARN_MB, DEFAULT_DB_SIZE_WARN_MB)
-    state_change_threshold = config.get(
-        CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD
-    )
+    state_change_threshold = config.get(CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD)
 
     score = 100
 
@@ -547,9 +541,7 @@ def calculate_health_score(
     # Noisy entity deduction
     state_changes = data.get("state_changes", {})
     top_entities = state_changes.get("top_entities", [])
-    if any(
-        e.get("changes_per_hour", 0) > state_change_threshold for e in top_entities
-    ):
+    if any(e.get("changes_per_hour", 0) > state_change_threshold for e in top_entities):
         score -= HEALTH_NOISY_ENTITY_DEDUCTION
 
     # Recorder queue deduction
@@ -560,10 +552,7 @@ def calculate_health_score(
     # Slow integration deduction
     integrations = data.get("integrations", {})
     slowest = integrations.get("slowest", [])
-    if any(
-        i.get("avg_update_ms", 0) > HEALTH_SLOW_INTEGRATION_THRESHOLD
-        for i in slowest
-    ):
+    if any(i.get("avg_update_ms", 0) > HEALTH_SLOW_INTEGRATION_THRESHOLD for i in slowest):
         score -= HEALTH_SLOW_INTEGRATION_DEDUCTION
 
     # Antipattern deductions
@@ -587,9 +576,7 @@ def generate_recommendations(
     """Generate actionable recommendations based on diagnostic data."""
     config = config or {}
     db_size_warn = config.get(CONF_DB_SIZE_WARN_MB, DEFAULT_DB_SIZE_WARN_MB)
-    state_change_threshold = config.get(
-        CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD
-    )
+    state_change_threshold = config.get(CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD)
 
     recommendations: list[dict[str, Any]] = []
 
@@ -756,10 +743,7 @@ def generate_recommendations(
                     f"You have {integration_count} integrations loaded. "
                     f"Each adds overhead to your system."
                 ),
-                "fix": (
-                    "Review your integrations and disable any that are not "
-                    "actively used."
-                ),
+                "fix": ("Review your integrations and disable any that are not actively used."),
             }
         )
 

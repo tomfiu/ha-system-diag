@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Any
 
 import voluptuous as vol
-
 from homeassistant.config_entries import ConfigEntry, ConfigFlow, OptionsFlow
 from homeassistant.core import callback
 from homeassistant.data_entry_flow import FlowResult
@@ -34,15 +33,11 @@ def _build_schema(defaults: dict[str, Any] | None = None) -> vol.Schema:
             ): vol.All(int, vol.Range(min=60, max=3600)),
             vol.Optional(
                 CONF_SLOW_QUERY_THRESHOLD,
-                default=defaults.get(
-                    CONF_SLOW_QUERY_THRESHOLD, DEFAULT_SLOW_QUERY_THRESHOLD_MS
-                ),
+                default=defaults.get(CONF_SLOW_QUERY_THRESHOLD, DEFAULT_SLOW_QUERY_THRESHOLD_MS),
             ): vol.All(int, vol.Range(min=100, max=5000)),
             vol.Optional(
                 CONF_STATE_CHANGE_THRESHOLD,
-                default=defaults.get(
-                    CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD
-                ),
+                default=defaults.get(CONF_STATE_CHANGE_THRESHOLD, DEFAULT_STATE_CHANGE_THRESHOLD),
             ): vol.All(int, vol.Range(min=10, max=1000)),
             vol.Optional(
                 CONF_DB_SIZE_WARN_MB,
@@ -57,9 +52,7 @@ class HAPerfDiagConfigFlow(ConfigFlow, domain=DOMAIN):
 
     VERSION = 1
 
-    async def async_step_user(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_user(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Handle the initial step."""
         await self.async_set_unique_id(DOMAIN)
         self._abort_if_unique_id_configured()
@@ -89,9 +82,7 @@ class HAPerfDiagOptionsFlow(OptionsFlow):
         """Initialize options flow."""
         self.config_entry = config_entry
 
-    async def async_step_init(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
+    async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Manage the options."""
         if user_input is not None:
             return self.async_create_entry(title="", data=user_input)

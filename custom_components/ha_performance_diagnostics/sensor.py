@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
@@ -18,7 +17,6 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import (
-    DATA_ANTIPATTERNS,
     DATA_DB,
     DATA_HEALTH_SCORE,
     DATA_INTEGRATIONS,
@@ -150,9 +148,7 @@ SENSOR_DESCRIPTIONS: tuple[HAPerfDiagSensorEntityDescription, ...] = (
         icon="mdi:counter",
         value_fn=lambda d: _safe_get(d, DATA_STATE_CHANGES, "total_changes"),
         attr_fn=lambda d: {
-            "data_window_minutes": _safe_get(
-                d, DATA_STATE_CHANGES, "data_window_minutes"
-            ),
+            "data_window_minutes": _safe_get(d, DATA_STATE_CHANGES, "data_window_minutes"),
         },
     ),
     HAPerfDiagSensorEntityDescription(
@@ -222,8 +218,7 @@ async def async_setup_entry(
     coordinator: HAPerfDiagCoordinator = hass.data[DOMAIN][config_entry.entry_id]
 
     async_add_entities(
-        HAPerfDiagSensor(coordinator, description)
-        for description in SENSOR_DESCRIPTIONS
+        HAPerfDiagSensor(coordinator, description) for description in SENSOR_DESCRIPTIONS
     )
 
 
@@ -267,10 +262,7 @@ class HAPerfDiagSensor(CoordinatorEntity[HAPerfDiagCoordinator], SensorEntity):
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
         """Return extra state attributes."""
-        if (
-            self.coordinator.data is None
-            or self.entity_description.attr_fn is None
-        ):
+        if self.coordinator.data is None or self.entity_description.attr_fn is None:
             return None
         try:
             return self.entity_description.attr_fn(self.coordinator.data)

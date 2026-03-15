@@ -25,9 +25,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # Register frontend card as a static resource
-    frontend_path = os.path.join(
-        os.path.dirname(__file__), "frontend", "ha-performance-card.js"
-    )
+    frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "ha-performance-card.js")
     if os.path.isfile(frontend_path):
         hass.http.register_static_path(
             "/hacsfiles/ha-performance-card/ha-performance-card.js",

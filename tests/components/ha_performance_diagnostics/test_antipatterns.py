@@ -36,14 +36,10 @@ class TestNoConditionStateTrigger:
     @pytest.mark.asyncio
     async def test_detects_noisy_trigger_no_condition(self):
         """Flag automation with state trigger on noisy entity and no conditions."""
-        auto = _make_automation_state(
-            "automation.test_auto", "Test Automation", "test_auto"
-        )
+        auto = _make_automation_state("automation.test_auto", "Test Automation", "test_auto")
         config = {
             "automation.test_auto": {
-                "trigger": [
-                    {"platform": "state", "entity_id": "sensor.outdoor_temp"}
-                ],
+                "trigger": [{"platform": "state", "entity_id": "sensor.outdoor_temp"}],
                 "condition": [],
                 "action": [{"service": "light.turn_on", "entity_id": "light.test"}],
             }
@@ -67,14 +63,10 @@ class TestNoConditionStateTrigger:
     @pytest.mark.asyncio
     async def test_ignores_trigger_with_conditions(self):
         """Don't flag if automation has conditions."""
-        auto = _make_automation_state(
-            "automation.test_auto", "Test Automation", "test_auto"
-        )
+        auto = _make_automation_state("automation.test_auto", "Test Automation", "test_auto")
         config = {
             "automation.test_auto": {
-                "trigger": [
-                    {"platform": "state", "entity_id": "sensor.outdoor_temp"}
-                ],
+                "trigger": [{"platform": "state", "entity_id": "sensor.outdoor_temp"}],
                 "condition": [{"condition": "time", "after": "08:00"}],
                 "action": [{"service": "light.turn_on"}],
             }
@@ -94,14 +86,10 @@ class TestNoConditionStateTrigger:
     @pytest.mark.asyncio
     async def test_ignores_non_noisy_entity(self):
         """Don't flag if entity is not noisy."""
-        auto = _make_automation_state(
-            "automation.test_auto", "Test Automation", "test_auto"
-        )
+        auto = _make_automation_state("automation.test_auto", "Test Automation", "test_auto")
         config = {
             "automation.test_auto": {
-                "trigger": [
-                    {"platform": "state", "entity_id": "sensor.quiet_entity"}
-                ],
+                "trigger": [{"platform": "state", "entity_id": "sensor.quiet_entity"}],
                 "condition": [],
                 "action": [{"service": "light.turn_on"}],
             }
@@ -125,9 +113,7 @@ class TestAutomationChains:
     @pytest.mark.asyncio
     async def test_detects_automation_trigger_chain(self):
         """Flag automation that triggers another automation."""
-        auto = _make_automation_state(
-            "automation.chain_start", "Chain Start", "chain_start"
-        )
+        auto = _make_automation_state("automation.chain_start", "Chain Start", "chain_start")
         config = {
             "automation.chain_start": {
                 "trigger": [{"platform": "state", "entity_id": "sensor.test"}],
@@ -150,9 +136,7 @@ class TestAutomationChains:
     @pytest.mark.asyncio
     async def test_detects_automation_turn_on_chain(self):
         """Flag automation.turn_on as a chain too."""
-        auto = _make_automation_state(
-            "automation.chain_start", "Chain Start", "chain_start"
-        )
+        auto = _make_automation_state("automation.chain_start", "Chain Start", "chain_start")
         config = {
             "automation.chain_start": {
                 "trigger": [{"platform": "time", "at": "08:00"}],
@@ -178,16 +162,13 @@ class TestStartupOverload:
     @pytest.mark.asyncio
     async def test_detects_startup_with_many_actions(self):
         """Flag HA start trigger with >5 actions."""
-        auto = _make_automation_state(
-            "automation.startup", "Startup Tasks", "startup"
-        )
+        auto = _make_automation_state("automation.startup", "Startup Tasks", "startup")
         config = {
             "automation.startup": {
                 "trigger": [{"platform": "homeassistant", "event": "start"}],
                 "condition": [],
                 "action": [
-                    {"service": f"light.turn_on", "entity_id": f"light.test_{i}"}
-                    for i in range(8)
+                    {"service": "light.turn_on", "entity_id": f"light.test_{i}"} for i in range(8)
                 ],
             }
         }
@@ -201,9 +182,7 @@ class TestStartupOverload:
     @pytest.mark.asyncio
     async def test_ignores_startup_with_few_actions(self):
         """Don't flag startup with <= 5 actions."""
-        auto = _make_automation_state(
-            "automation.startup", "Startup Tasks", "startup"
-        )
+        auto = _make_automation_state("automation.startup", "Startup Tasks", "startup")
         config = {
             "automation.startup": {
                 "trigger": [{"platform": "homeassistant", "event": "start"}],
@@ -233,13 +212,13 @@ class TestCleanAutomations:
     @pytest.mark.asyncio
     async def test_clean_automation_no_findings(self):
         """Well-structured automation produces no findings."""
-        auto = _make_automation_state(
-            "automation.clean", "Clean Automation", "clean"
-        )
+        auto = _make_automation_state("automation.clean", "Clean Automation", "clean")
         config = {
             "automation.clean": {
                 "trigger": [{"platform": "time", "at": "08:00:00"}],
-                "condition": [{"condition": "state", "entity_id": "input_boolean.test", "state": "on"}],
+                "condition": [
+                    {"condition": "state", "entity_id": "input_boolean.test", "state": "on"}
+                ],
                 "action": [{"service": "light.turn_on", "entity_id": "light.kitchen"}],
             }
         }
@@ -251,9 +230,7 @@ class TestCleanAutomations:
     @pytest.mark.asyncio
     async def test_missing_config_handled(self):
         """Automation without config data is skipped gracefully."""
-        auto = _make_automation_state(
-            "automation.no_config", "No Config", "no_config"
-        )
+        auto = _make_automation_state("automation.no_config", "No Config", "no_config")
         hass = _make_hass([auto], {})
 
         results = await async_scan_automation_antipatterns(hass)
