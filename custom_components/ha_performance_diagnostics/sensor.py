@@ -23,6 +23,7 @@ from .const import (
     DATA_RECOMMENDATIONS,
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
+    DATA_TOP_PROCESSES,
     DOMAIN,
 )
 from .coordinator import HAPerfDiagCoordinator
@@ -51,6 +52,22 @@ def _get_top_entity_attrs(data: dict, index: int) -> dict[str, Any]:
     entities = _safe_get(data, DATA_STATE_CHANGES, "top_entities", default=[])
     if index < len(entities):
         return entities[index]
+    return {}
+
+
+def _get_top_process(data: dict, index: int) -> Any:
+    """Get CPU percent for top process N."""
+    processes = _safe_get(data, DATA_TOP_PROCESSES, "processes", default=[])
+    if index < len(processes):
+        return processes[index].get("cpu_percent")
+    return None
+
+
+def _get_top_process_attrs(data: dict, index: int) -> dict[str, Any]:
+    """Get attributes for top process N."""
+    processes = _safe_get(data, DATA_TOP_PROCESSES, "processes", default=[])
+    if index < len(processes):
+        return processes[index]
     return {}
 
 
@@ -188,6 +205,34 @@ SENSOR_DESCRIPTIONS: tuple[HAPerfDiagSensorEntityDescription, ...] = (
         name="Loaded Integration Count",
         icon="mdi:puzzle",
         value_fn=lambda d: _safe_get(d, DATA_INTEGRATIONS, "integration_count"),
+    ),
+    # Top CPU process sensors
+    HAPerfDiagSensorEntityDescription(
+        key="hapd_top_cpu_process_1",
+        name="Top CPU Process #1",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:cpu-64-bit",
+        value_fn=lambda d: _get_top_process(d, 0),
+        attr_fn=lambda d: _get_top_process_attrs(d, 0),
+    ),
+    HAPerfDiagSensorEntityDescription(
+        key="hapd_top_cpu_process_2",
+        name="Top CPU Process #2",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:cpu-64-bit",
+        value_fn=lambda d: _get_top_process(d, 1),
+        attr_fn=lambda d: _get_top_process_attrs(d, 1),
+    ),
+    HAPerfDiagSensorEntityDescription(
+        key="hapd_top_cpu_process_3",
+        name="Top CPU Process #3",
+        native_unit_of_measurement="%",
+        state_class=SensorStateClass.MEASUREMENT,
+        icon="mdi:cpu-64-bit",
+        value_fn=lambda d: _get_top_process(d, 2),
+        attr_fn=lambda d: _get_top_process_attrs(d, 2),
     ),
     # Diagnostics summary sensors
     HAPerfDiagSensorEntityDescription(

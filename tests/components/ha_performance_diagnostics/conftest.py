@@ -16,6 +16,7 @@ from custom_components.ha_performance_diagnostics.const import (
     DATA_RECOMMENDATIONS,
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
+    DATA_TOP_PROCESSES,
     DEFAULT_DB_SIZE_WARN_MB,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_SLOW_QUERY_THRESHOLD_MS,
@@ -100,4 +101,26 @@ def sample_coordinator_data():
         DATA_ANTIPATTERNS: [],
         DATA_HEALTH_SCORE: 100,
         DATA_RECOMMENDATIONS: [],
+        DATA_TOP_PROCESSES: {
+            "processes": [
+                {
+                    "pid": 1234,
+                    "name": "homeassistant",
+                    "cpu_percent": 12.5,
+                    "memory_percent": 8.3,
+                },
+                {
+                    "pid": 5678,
+                    "name": "python3",
+                    "cpu_percent": 7.2,
+                    "memory_percent": 4.1,
+                },
+                {
+                    "pid": 9012,
+                    "name": "nginx",
+                    "cpu_percent": 1.0,
+                    "memory_percent": 0.5,
+                },
+            ]
+        },
     }
