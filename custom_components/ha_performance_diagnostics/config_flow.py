@@ -78,9 +78,15 @@ class HAPerfDiagConfigFlow(ConfigFlow, domain=DOMAIN):
 class HAPerfDiagOptionsFlow(OptionsFlow):
     """Handle options flow for HA Performance Diagnostics."""
 
-    def __init__(self, config_entry: ConfigEntry) -> None:
+    def __init__(self, config_entry: ConfigEntry | None = None) -> None:
         """Initialize options flow."""
-        self.config_entry = config_entry
+        super().__init__()
+        # In newer HA, config_entry is a read-only property set by the framework.
+        if config_entry is not None:
+            try:
+                self.config_entry = config_entry
+            except AttributeError:
+                pass
 
     async def async_step_init(self, user_input: dict[str, Any] | None = None) -> FlowResult:
         """Manage the options."""

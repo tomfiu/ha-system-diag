@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, PropertyMock, patch
 
 import pytest
 
@@ -103,7 +103,10 @@ class TestOptionsFlow:
         entry.options = {}
 
         flow = HAPerfDiagOptionsFlow(entry)
-        result = await flow.async_step_init()
+        with patch.object(
+            type(flow), "config_entry", new_callable=PropertyMock, return_value=entry
+        ):
+            result = await flow.async_step_init()
 
         assert result["type"] == "form"
         assert result["step_id"] == "init"
@@ -117,7 +120,10 @@ class TestOptionsFlow:
 
         flow = HAPerfDiagOptionsFlow(entry)
         user_input = {CONF_SCAN_INTERVAL: 120}
-        result = await flow.async_step_init(user_input)
+        with patch.object(
+            type(flow), "config_entry", new_callable=PropertyMock, return_value=entry
+        ):
+            result = await flow.async_step_init(user_input)
 
         assert result["type"] == "create_entry"
         assert result["data"] == user_input

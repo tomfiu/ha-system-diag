@@ -43,7 +43,8 @@ def mock_config_entry(default_config):
 @pytest.fixture
 def coordinator(mock_hass, mock_config_entry):
     """Create a coordinator instance."""
-    return HAPerfDiagCoordinator(mock_hass, mock_config_entry)
+    with patch("homeassistant.helpers.frame.report_usage"):
+        return HAPerfDiagCoordinator(mock_hass, mock_config_entry)
 
 
 class TestCoordinatorInit:
@@ -58,7 +59,8 @@ class TestCoordinatorInit:
         entry = MagicMock()
         entry.data = {CONF_SCAN_INTERVAL: 120}
         entry.options = {}
-        coord = HAPerfDiagCoordinator(mock_hass, entry)
+        with patch("homeassistant.helpers.frame.report_usage"):
+            coord = HAPerfDiagCoordinator(mock_hass, entry)
         assert coord.update_interval.total_seconds() == 120
 
     def test_options_override_data(self, mock_hass):
@@ -66,7 +68,8 @@ class TestCoordinatorInit:
         entry = MagicMock()
         entry.data = {CONF_SCAN_INTERVAL: 120}
         entry.options = {CONF_SCAN_INTERVAL: 60}
-        coord = HAPerfDiagCoordinator(mock_hass, entry)
+        with patch("homeassistant.helpers.frame.report_usage"):
+            coord = HAPerfDiagCoordinator(mock_hass, entry)
         assert coord.update_interval.total_seconds() == 60
 
 
