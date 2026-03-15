@@ -24,16 +24,17 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
-    # Register frontend card as a static resource
+    # Register frontend card as a static resource and load it in Lovelace
     frontend_path = os.path.join(os.path.dirname(__file__), "frontend", "ha-performance-card.js")
     if os.path.isfile(frontend_path):
+        url = "/hacsfiles/ha-performance-card/ha-performance-card.js"
         try:
             from homeassistant.components.http import StaticPathConfig
 
             await hass.http.async_register_static_paths(
                 [
                     StaticPathConfig(
-                        "/hacsfiles/ha-performance-card/ha-performance-card.js",
+                        url,
                         frontend_path,
                         cache_headers=True,
                     )
@@ -41,10 +42,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
             )
         except (ImportError, AttributeError):
             hass.http.register_static_path(
-                "/hacsfiles/ha-performance-card/ha-performance-card.js",
+                url,
                 frontend_path,
                 cache_headers=True,
             )
+
+        from homeassistant.components.frontend import add_extra_js_url
+
+        add_extra_js_url(hass, url)
 
     # Listen for options updates
     entry.async_on_unload(entry.add_update_listener(async_update_options))
