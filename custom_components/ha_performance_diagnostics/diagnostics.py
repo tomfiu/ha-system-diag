@@ -110,7 +110,46 @@ async def async_get_system_metrics(hass: HomeAssistant) -> dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
-# 2. DB Health
+# 2. Top CPU Processes
+# ---------------------------------------------------------------------------
+
+
+def _get_top_processes_sync() -> list[dict[str, Any]]:
+    """Collect top processes by CPU usage (runs in executor)."""
+    if not HAS_PSUTIL:
+        return []
+
+    procs = []
+    for proc in psutil.process_iter(["pid", "name", "cpu_percent", "memory_percent"]):
+        try:
+            info = proc.info
+            procs.append(
+                {
+                    "pid": info["pid"],
+                    "name": info["name"] or "unknown",
+                    "cpu_percent": round(info["cpu_percent"] or 0.0, 1),
+                    "memory_percent": round(info["memory_percent"] or 0.0, 1),
+                }
+            )
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+
+    procs.sort(key=lambda p: p["cpu_percent"], reverse=True)
+    return procs[:5]
+
+
+async def async_get_top_cpu_processes(hass: HomeAssistant) -> dict[str, Any]:
+    """Collect top CPU-consuming processes."""
+    try:
+        processes = await hass.async_add_executor_job(_get_top_processes_sync)
+    except Exception:  # noqa: BLE001
+        _LOGGER.warning("Could not collect top CPU processes")
+        processes = []
+    return {"processes": processes}
+
+
+# ---------------------------------------------------------------------------
+# 4. DB Health  (formerly 2)
 # ---------------------------------------------------------------------------
 
 

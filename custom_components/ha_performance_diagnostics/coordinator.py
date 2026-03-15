@@ -21,6 +21,7 @@ from .const import (
     DATA_RECOMMENDATIONS,
     DATA_STATE_CHANGES,
     DATA_SYSTEM,
+    DATA_TOP_PROCESSES,
     DEFAULT_SCAN_INTERVAL,
     DEFAULT_STATE_CHANGE_THRESHOLD,
     DOMAIN,
@@ -30,6 +31,7 @@ from .diagnostics import (
     async_get_integration_timing,
     async_get_state_change_analysis,
     async_get_system_metrics,
+    async_get_top_cpu_processes,
     async_scan_automation_antipatterns,
     calculate_health_score,
     generate_recommendations,
@@ -70,13 +72,14 @@ class HAPerfDiagCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             async_get_db_health(self.hass),
             async_get_state_change_analysis(self.hass, self._state_change_threshold),
             async_get_integration_timing(self.hass),
+            async_get_top_cpu_processes(self.hass),
             return_exceptions=True,
         )
 
         data: dict[str, Any] = {}
 
         # Process results, using previous data as fallback on errors
-        keys = [DATA_SYSTEM, DATA_DB, DATA_STATE_CHANGES, DATA_INTEGRATIONS]
+        keys = [DATA_SYSTEM, DATA_DB, DATA_STATE_CHANGES, DATA_INTEGRATIONS, DATA_TOP_PROCESSES]
         for key, result in zip(keys, results):
             if isinstance(result, Exception):
                 _LOGGER.warning("Error collecting %s data: %s", key, result)
